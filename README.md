@@ -8,7 +8,7 @@ For example, when run on the following video, we infer the tempo as 128bpm. Over
 
 This is just a quick implementation to quickly explore the problem and prototype a solution. Obvious next steps are CNN or LSTM based on these timeseries representations of movement. 
 
-####How to run
+## How to run
 ```python
 python3 run.py ~/Documents/tempo_videos/p_vid.mp4
 ```
