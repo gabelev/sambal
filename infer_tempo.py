@@ -12,7 +12,8 @@ class InferTempo():
             video_file_path,
     ):
         self.video_location = video_file_path
-
+        self.motion_angles = None
+        self.beat_candidates = None
 
     def faircloth_tempo(self, flow: list) -> float:
         """
@@ -40,7 +41,7 @@ class InferTempo():
 
     def calculate_motion_vector_angles(
             self,
-            optical_flow_params: tuple = (0.5, 3, 15, 3, 5, 1.2, 0),
+            optical_flow_params: list = list(0.5, 3, 15, 3, 5, 1.2, 0),
             convolve_param: int = 10
     ) -> np.array:
             """
@@ -127,7 +128,7 @@ class InferTempo():
             self,
             candidates: list,
             num_frames: int,
-            tempos: list = tuple(range(90,180)),
+            tempos: list = list(range(90,180)),
     ) -> float:
         """
         Implementation of the Faircloth visual tempo algorithim
@@ -212,4 +213,31 @@ class InferTempo():
             if agent.get('score') > max_score:
                 max_score = agent.get('score')
                 index_max = index
-        return agents[index_max]
+        return agents[index_max].get('interval')
+
+
+    def run(self):
+        """
+        Run chain from video to optical flow to feature extraction to tempo inference
+
+        arg:
+            None
+
+        Returns:
+            infered_tempo (int)
+
+        """
+
+        # parse the video,build an array of motion vectors, and calculate the motion angles between frames
+        self.motion_angles = self.calculate_motion_vector_angles(self.video_location)
+        # barn door filter of motion angles
+        self.beat_candidates = self.build_beat_candidates(self.motion_angles)
+        # build a realisitic list of candidates
+        tempo_candidates = list(range(70, 180, 10))
+        return int(self.infer_faircloth_tempo(
+            self.beat_candidates,
+            # number of frames
+            self.motion_angles.shape[0],
+            tempo_candidates
+        ))
+
