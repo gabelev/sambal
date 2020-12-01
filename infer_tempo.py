@@ -41,15 +41,12 @@ class InferTempo():
 
     def calculate_motion_vector_angles(
             self,
-            optical_flow_params: list = list(0.5, 3, 15, 3, 5, 1.2, 0),
-            convolve_param: int = 10
     ) -> np.array:
             """
             Run the optical flow Farneback algorithm pointed at a video file
 
             Args:
                 video_location (string): location of the video file
-                flow_params(list): "default" params for openCV Farneback
 
             Returns:
                 movement (list): angles for movement vectors of the optical flow per each frame
@@ -77,12 +74,18 @@ class InferTempo():
                     previous_frame_greyscale,
                     current_frame_grayscale,
                     None,
-                    *optical_flow_params
+                    0.5,
+                    3,
+                    15,
+                    3,
+                    5,
+                    1.2,
+                    0
                 )
                 motion_angles.append(self.faircloth_tempo(flow))
                 previous_frame_greyscale = current_frame_grayscale
-
-            return np.convolve(motion_angles, np.ones(convolve_param), mode='full')
+                # adjust convolve factor
+            return np.convolve(motion_angles, np.ones(10))
 
     def build_beat_candidates(self, motion_angles: list, threshold: float = 5.0) -> list:
         """
@@ -129,7 +132,7 @@ class InferTempo():
             candidates: list,
             num_frames: int,
             tempos: list = list(range(90,180)),
-    ) -> float:
+    ) -> list:
         """
         Implementation of the Faircloth visual tempo algorithim
         https://stars.library.ucf.edu/cgi/viewcontent.cgi?article=4582&context=etd
@@ -161,7 +164,7 @@ class InferTempo():
         for tempo in tempos:
             for vote in candidates:
                 if vote[0] < startup_period:
-                    agent = agent_factory(
+                    agent = self.agent_factory(
                         tempo,
                         vote[0] + tempo,
                         [vote],
@@ -213,7 +216,7 @@ class InferTempo():
             if agent.get('score') > max_score:
                 max_score = agent.get('score')
                 index_max = index
-        return agents[index_max].get('interval')
+        return [int(agents[index_max].get('interval')), agents[index_max].get('score')]
 
 
     def run(self):
@@ -229,15 +232,15 @@ class InferTempo():
         """
 
         # parse the video,build an array of motion vectors, and calculate the motion angles between frames
-        self.motion_angles = self.calculate_motion_vector_angles(self.video_location)
+        self.motion_angles = self.calculate_motion_vector_angles()
         # barn door filter of motion angles
         self.beat_candidates = self.build_beat_candidates(self.motion_angles)
         # build a realisitic list of candidates
         tempo_candidates = list(range(70, 180, 10))
-        return int(self.infer_faircloth_tempo(
+        return self.infer_faircloth_tempo(
             self.beat_candidates,
             # number of frames
             self.motion_angles.shape[0],
             tempo_candidates
-        ))
+        )
 
