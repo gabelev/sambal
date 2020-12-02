@@ -2,7 +2,7 @@
 
 This repo is kernel of an attept to build out a way to detect tempo / bpm from video clips. (Haven't you ever wanted to automagicallly score your movies? This would help towards that.) This code parses video and builds an optical flow using [openCV](https://github.com/opencv/opencv) Farneback algorithm for dense optical flow. Then we calculate the angle between the movement vectors to extract a way of representing motion to infer beats and tempo using Ryan Faircloth's visual tempo detection algorithm. 
 
-For example, when run on the following video, we infer the tempo as 128bpm. Overlay some music, and huzzah! 
+For example, when run on the following video, we infer the tempo as 128bpm. Overlay some dance music with the same bpm, and huzzah! 
 
 [![OfficeDance](media/officedance.jpeg)](https://vimeo.com/486155900 "Tempo Detection")
 
