@@ -4,7 +4,7 @@ import sys
 
 from infer_tempo import InferTempo
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     try:
         video = sys.argv[1]
