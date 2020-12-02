@@ -10,5 +10,5 @@ This is just a quick implementation to quickly explore the problem and prototype
 
 ## How to run
 ```python
-python3 run.py media/office_dance_vid.mp4
+python run.py media/office_dance_vid.mp4
 ```
